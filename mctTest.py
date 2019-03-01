@@ -52,11 +52,14 @@ def keyboard_input():
             if (x == 'q'): #Quit on user input
                 return
 
-            x = float(x)
-            if (x < -45 or x > 45):
-                print("Invalid angle.")
-            else:
-                valid_input_flag = True
+            try:
+                x = float(x)
+                if (x < -45 or x > 45):
+                    print("Invalid angle.")
+                else:
+                    valid_input_flag = True
+            except ValueError:
+                print("Input must be numerical.")
 
         valid_input_flag = False
         while(not valid_input_flag):    
@@ -69,11 +72,14 @@ def keyboard_input():
             if (y == 'q'): #Quit on user input
                 return
 
-            y = float(y)
-            if (y < -45 or y > 10):
-                print("Invalid angle.")
-            else:
-                valid_input_flag = True
+            try:
+                y = float(y)
+                if (y < -45 or y > 10):
+                    print("Invalid angle.")
+                else:
+                    valid_input_flag = True
+            except ValueError:
+                print("Input must be numerical.")
         
         #Convert coordinates for output
         x_out,y_out = float_to_out(x,y)
@@ -152,17 +158,17 @@ def mouse_input():
 
 def help_():
     print("Welcome to the mctTest Script.")
-    print("DESCRIPTION: \n This script is used to send custom motor angle data through serial via the mouse or keyboard.")
-    print("USAGE: \n At the main menu type and enter 'k' in terminal to set a custom angle output via angle input values.")
-    print("Type and enter 'm' to adjust the angle in realtime via the mouse.")
-    print("Type and enter 'q' to exit the program.")
-    print("KEYBOARD INPUT: \n When prompted, type in the roll (-45 to +45) and pitch (-45 to +10) angles you'd like to send to the motors. You'll be asked to reenter the angles if they are out of bounds. You can return to the main menu at any time by entering 'q'.")
-    print("MOUSE INPUT: \n when prompted, type in how long you'd like to send angle data to the motors via mouse. The center of the screen sends angle data of (0 roll,0 pitch). Move the mouse up and down to move between a pitch value of -45 and +10 degrees. Move the mouse left and right to move between a roll value of -45 and 45 degreesYou can return to the main menu at any time by entering 'q'.")
+    print("\nDESCRIPTION: \nThis script is used to send custom motor angle data through serial via the mouse or keyboard.")
+    print("\nUSAGE: \nAt the main menu type and enter 'k' in terminal to set a custom angle output via angle input values.")
+    print("\nType and enter 'm' to adjust the angle in realtime via the mouse.")
+    print("\nType and enter 'q' to exit the program.")
+    print("\nKEYBOARD INPUT: \nWhen prompted, type in the roll (-45 to +45) and pitch (-45 to +10) angles you'd like to send to the motors. You'll be asked to reenter the angles if they are out of bounds. You can return to the main menu at any time by entering 'q'.")
+    print("\nMOUSE INPUT: \nwhen prompted, type in how long you'd like to send angle data to the motors via mouse. The center of the screen sends angle data of (0 roll,0 pitch). Move the mouse up and down to move between a pitch value of -45 and +10 degrees. Move the mouse left and right to move between a roll value of -45 and 45 degreesYou can return to the main menu at any time by entering 'q'.")
     print("Note: The mouse coordinates are eliptically bound. If the mouse moves outside of these bounds, the ray-traced point on the elliptical boundary will be used as the current roll/pitch value.")
-    print("CUSTOM SCREEN RESOLUTION: By default the mouse input is designed to work with 1920x1080p resolution monitors. The resolution can be changed in the code at lines 11 and 12 to any resolution.")
-    print("DEBUG MODE: Debug mode is used to test the script without having working serial output. Toggle mode by changing the value of the the constant DEBUG_ to True or False on line 8.")
-    print("CURRENT FILE: The latest stable python script and README documentation can be found at https://github.com/alwayzup/mctTest")
-    print("TROUBLESHOOTING: For any issues with the script please see the Installation Instructions in README.md.")
+    print("\nCUSTOM SCREEN RESOLUTION: By default the mouse input is designed to work with 1920x1080p resolution monitors. The resolution can be changed in the code at lines 11 and 12 to any resolution.")
+    print("\nDEBUG MODE: Debug mode is used to test the script without having working serial output. Toggle mode by changing the value of the the constant DEBUG_ to True or False on line 8.")
+    print("\nCURRENT FILE: The latest stable python script and README documentation can be found at https://github.com/alwayzup/mctTest")
+    print("\nTROUBLESHOOTING: For any issues with the script please see the Installation Instructions in README.md.")
 
     return
 
