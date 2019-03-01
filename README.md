@@ -1,5 +1,5 @@
 # mctTest
-Python test script for Enginuity Works and MCT
+Python test script for Enginuity Works and MCT.
 
 ## How to install/run
 
