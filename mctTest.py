@@ -43,8 +43,8 @@ def keyboard_input():
     while(True):
         valid_input_flag = False
         while(not valid_input_flag):    
-            print("Set Role:")
-            print("Enter role angle from -45 to +45: ('q' to quit to main menu)")
+            print("Set Roll:")
+            print("Enter roll angle from -45 to +45: ('q' to quit to main menu)")
             x = 0
             x_input = input()
             x = x_input
