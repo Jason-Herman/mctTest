@@ -18,6 +18,7 @@ This script will ONLY work for Windows Environments.
 6. In the VSCode Terminal type the following commands to install the necessary dependencies:
 - "pip install pyserial"
 - "pip install pypiwin32"
+7. Update the comport on line 17 and change debug mode to False on line 8 if you'd like to test the serial output. 
 
 
 ##Running the Script in VSCode

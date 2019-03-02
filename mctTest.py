@@ -5,7 +5,7 @@ import serial
 import sys
 
 #Debug Mode - No serial output
-DEBUG_ = True
+DEBUG_ = False
 
 #Set monitor resolution here:
 x_r = 1920 # set horizontal resolution in px
@@ -14,8 +14,8 @@ y_b = 1080 # set vertical resolution in px
 print('Initializing mctTest script...')
 if (not DEBUG_):
     time.sleep(2) #Wait 2 seconds to ensure serial output works properly
-    com_port = 'ENTER_COMPORT_HERE' #Need to update port (e.g. 'com4' arduino)
-    SER = serial.Serial(com_port,96810)
+    com_port = 'com11' #Need to update port (e.g. 'com4' arduino)
+    SER = serial.Serial(com_port,9600)
     #Prime motor
     SER.write(str.encode('RUN\r')) 
 
@@ -101,7 +101,7 @@ def mouse_input():
 
         run_time = float(run_time)
 
-        sample_time = .05 # Set time in seconds between samples here
+        sample_time = .1 # Set time in seconds between samples here
         
         #Get actual resolution reading from monitor manually (currently: 1080p)
         x_l = 0
