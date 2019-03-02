@@ -88,6 +88,87 @@ def keyboard_input():
         #Write data out to console and serial
         write_data(x_out,y_out)
 
+def mouse_to_file():
+
+    while (True):
+            print("Mouse input writen to file: \n Move mouse up and down to set pitch angle from -45 to +10 degrees. Move mouse left and right to set roll angle from -45 to +45 degrees.")
+            print("Serial output data will be written to a time stamped file in working directory.")
+            print("Enter runtime in seconds for mouse input writing: ('q' to quit to main menu)")
+            run_time_input = 0
+            run_time_input = input()
+            run_time = run_time_input # Set program run time in seconds
+
+            if (run_time == 'q'): #Quit on user input
+                return 
+
+            run_time = float(run_time)
+
+            sample_time = .1 # Set time in seconds between samples here
+            
+            #Get actual resolution reading from monitor manually (currently: 1080p)
+            x_l = 0
+            global x_r
+            y_t = 0
+            global y_b
+            x_span = x_r - x_l
+            y_span = y_b - y_t
+
+            #Create new text file with timestamp
+            fileName =  str(time.strftime("%Y%m%d-%H%M%S")) + "_Serial_Data"
+            f = open(fileName, "x")
+
+            i = 0 # Counter for running time
+
+            while (i < run_time/sample_time):
+                x, y = win32api.GetCursorPos()
+                #Scale 
+                x = (x*(55/y_span)) - (x_span*(55/y_span)/2)
+                y = 10 - (y*(55/y_span))
+                    
+                #Check if coordinate is within supplied bounds - https://math.stackexchange.com/questions/76457/check-if-a-point-is-within-an-ellipse
+                #If out of bounds use the ray intersection - https://math.stackexchange.com/questions/22064/calculating-a-point-that-lies-on-an-ellipse-given-an-angle
+                print((x**2/(45**2)+y**2/(10**2)))
+                print((x**2/(45**2)+y**2/(45**2)))
+                if (y>=0): #Above
+                    a = 45
+                    b = 10
+                    if ((x**2/(a**2)+y**2/(b**2)) >= 1):
+                        y_temp = a*b/math.sqrt(a**2 + b**2 / (y/x)**2)
+                        if (x>0): #Positive
+                            x_temp = a*b/math.sqrt(b**2 + a**2 * (y/x)**2)
+                        else:
+                            x_temp = -a*b/math.sqrt(b**2 + a**2 * (y/x)**2)
+                        x = x_temp
+                        y = y_temp
+                else: #Below           
+                    a = 45
+                    b = 45
+                    if ((x**2/(a**2)+y**2/(b**2)) >= 1):
+                        y_temp = -a*b/math.sqrt(a**2 + b**2 / (y/x)**2)
+                        if (x>0): #Positive
+                            x_temp = a*b/math.sqrt(b**2 + a**2 * (y/x)**2)
+                        else:
+                            x_temp = -a*b/math.sqrt(b**2 + a**2 * (y/x)**2)
+                        x = x_temp
+                        y = y_temp
+
+                #Convert coordinates for output
+                x_out,y_out = float_to_out(x,y)
+                print('Raw Location: ' + str(x) + ' ' + str(y))
+
+                #Write data out to console
+                x_print = "r=" + str(x_out) + " "
+                y_print = "p=" + str(y_out) + " "
+                print("Serial Output: " + str(x_print) + str(y_print))
+                #Write data to text file
+                f.write(str(x_print))
+                f.write(str(y_print))
+                
+                time.sleep(sample_time) 
+                i += 1
+            #close text file
+            f.close()
+
 def mouse_input():
     while (True):
         print("Mouse Input Testing: \n Move mouse up and down to set pitch angle from -45 to +10 degrees. Move mouse left and right to set roll angle from -45 to +45 degrees.")
@@ -161,10 +242,12 @@ def help_():
     print("\nDESCRIPTION: \nThis script is used to send custom motor angle data through serial via the mouse or keyboard.")
     print("\nUSAGE: \nAt the main menu type and enter 'k' in terminal to set a custom angle output via angle input values.")
     print("\nType and enter 'm' to adjust the angle in realtime via the mouse.")
+    print("\nType and enter 'f' to write mouse angle data output to file.")    
     print("\nType and enter 'q' to exit the program.")
     print("\nKEYBOARD INPUT: \nWhen prompted, type in the roll (-45 to +45) and pitch (-45 to +10) angles you'd like to send to the motors. You'll be asked to reenter the angles if they are out of bounds. You can return to the main menu at any time by entering 'q'.")
-    print("\nMOUSE INPUT: \nwhen prompted, type in how long you'd like to send angle data to the motors via mouse. The center of the screen sends angle data of (0 roll,0 pitch). Move the mouse up and down to move between a pitch value of -45 and +10 degrees. Move the mouse left and right to move between a roll value of -45 and 45 degreesYou can return to the main menu at any time by entering 'q'.")
+    print("\nMOUSE INPUT: \nWhen prompted, type in how long you'd like to send angle data to the motors via mouse. The center of the screen sends angle data of (0 roll,0 pitch). Move the mouse up and down to move between a pitch value of -45 and +10 degrees. Move the mouse left and right to move between a roll value of -45 and 45 degreesYou can return to the main menu at any time by entering 'q'.")
     print("Note: The mouse coordinates are eliptically bound. If the mouse moves outside of these bounds, the ray-traced point on the elliptical boundary will be used as the current roll/pitch value.")
+    print("\nMOUSE TO FILE: \nWhen prompted, type in how long you'd like to record data for. Data is output to a time stamped txt file in the working directory.")
     print("\nCUSTOM SCREEN RESOLUTION: By default the mouse input is designed to work with 1920x1080p resolution monitors. The resolution can be changed in the code at lines 11 and 12 to any resolution.")
     print("\nDEBUG MODE: Debug mode is used to test the script without having working serial output. Toggle mode by changing the value of the the constant DEBUG_ to True or False on line 8.")
     print("\nCURRENT FILE: The latest stable python script and README documentation can be found at https://github.com/alwayzup/mctTest")
@@ -179,6 +262,7 @@ def input_to_method(inputType):
     switcher = {
         'k': keyboard_input,
         'm': mouse_input,
+        'f': mouse_to_file,
         'help': help_,
         'q': quit_
     }
@@ -189,7 +273,7 @@ def input_to_method(inputType):
 def main_menu():
     while (True):
         print('Awaiting input:')
-        print("Please type 'k' for keyboard input, 'm' for mouse input, 'help' for help, or 'q' to quit.")
+        print("Please type 'k' for keyboard input, 'm' for mouse input, 'f' for mouse to file, 'help' for help, or 'q' to quit.")
         input_type = ''
         input_type = input()
         input_to_method(input_type)
