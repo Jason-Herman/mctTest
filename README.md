@@ -31,6 +31,7 @@ At the main menu type and enter 'k' in terminal to set a custom angle output via
 Type and enter 'm' to adjust the angle in realtime via the mouse.
 Type and enter 'help' to see help documentation.
 Type and enter 'f' to write mouse data to file. 
+Type and enter 'r' to read mouse angle data from file and output to serial.
 Type and enter 'q' to exit the program.
 ## Keyboard Input
 When prompted, type in the roll (-45 to +45) and pitch (-45 to +10) angles you'd like to send to the motors. You'll be asked to reenter the angles if they are out of bounds. You can return to the main menu at any time by entering 'q'.
@@ -39,6 +40,8 @@ When prompted, type in how long you'd like to send angle data to the motors via 
 Note: The mouse coordinates are eliptically bound. If the mouse moves outside of these bounds, the ray-traced point on the elliptical boundary will be used as the current roll/pitch value.
 ## Mouse to File
 When prompted, type in how long you'd like to record data for. Data is output to a time stamped txt file in the working directory.
+## Read from File
+When prompted, type in the name of the file you'd like to read from (leave off the .txt file extension). Data is written to serial at sample rate.
 # Advanced Instructions
 ## Custom Screen resolution
 By default the mouse input is designed to work with 1920x1080p resolution monitors. The resolution can be changed in the code at lines 11 and 12 to any resolution. 

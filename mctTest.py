@@ -5,11 +5,14 @@ import serial
 import sys
 
 #Debug Mode - No serial output
-DEBUG_ = True
+DEBUG_ = False
 
 #Set monitor resolution here:
 x_r = 1920 # set horizontal resolution in px
 y_b = 1080 # set vertical resolution in px
+
+#Set sample time in seconds here:
+sample_time = .1
 
 print('Initializing mctTest script...')
 if (not DEBUG_):
@@ -103,7 +106,7 @@ def mouse_to_file():
 
             run_time = float(run_time)
 
-            sample_time = .1 # Set time in seconds between samples here
+            global sample_time # time in seconds between samples
             
             #Get actual resolution reading from monitor manually (currently: 1080p)
             x_l = 0
@@ -171,11 +174,12 @@ def mouse_to_file():
 
                 #Write data out to console
                 x_print = "r=" + str(x_out) + " "
-                y_print = "p=" + str(y_out) + " "
+                y_print = "p=" + str(y_out) + " \n"
                 print("Serial Output: " + str(x_print) + str(y_print))
                 #Write data to text file
                 f.write(str(x_print))
                 f.write(str(y_print))
+                
                 
                 time.sleep(sample_time) 
                 i += 1
@@ -195,7 +199,7 @@ def mouse_input():
 
         run_time = float(run_time)
 
-        sample_time = .1 # Set time in seconds between samples here
+        global sample_time # time in seconds between samples
         
         #Get actual resolution reading from monitor manually (currently: 1080p)
         x_l = 0
@@ -263,17 +267,55 @@ def mouse_input():
             time.sleep(sample_time) 
             i += 1
 
+def read_from_file():
+    while(True):
+        valid_input_flag = False
+        while(not valid_input_flag):    
+            print("Read and output angle data from file:")
+            print("Enter the name of the data file to be read (e.g. '20190306-144312_Serial_Data'): ('q' to quit to main menu)")
+            f_input = ''
+            f_input = input()
+            f_name = f_input
+
+            if (f_name == 'q'): #Quit on user input
+                return
+
+            try: #attempt to open the file
+                f_name = str(f_name)
+                f = open(f_name,'r')
+                valid_input_flag = True
+            except FileNotFoundError:
+                print("Wrong file or file path. Try a file name such as '20190306-144312_Serial_Data' (without the quotes) with the file located in the local directory.")
+
+        #Read the file line by line and write to terminal/serial
+        global sample_time
+        global DEBUG_
+        if (not DEBUG_):
+            global SER
+        fl = f.readlines()
+        print('To Serial:')
+        for l in fl:
+            print(l)
+
+            #Write data out to serial
+            if (not DEBUG_):
+                SER.write(str.encode(l))
+            
+            time.sleep(sample_time) 
+
 def help_():
     print("Welcome to the mctTest Script.")
     print("\nDESCRIPTION: \nThis script is used to send custom motor angle data through serial via the mouse or keyboard.")
     print("\nUSAGE: \nAt the main menu type and enter 'k' in terminal to set a custom angle output via angle input values.")
     print("\nType and enter 'm' to adjust the angle in realtime via the mouse.")
-    print("\nType and enter 'f' to write mouse angle data output to file.")    
+    print("\nType and enter 'f' to write mouse angle data output to file.")
+    print("\nType and enter 'r' to read mouse angle data from file and output to serial.")    
     print("\nType and enter 'q' to exit the program.")
     print("\nKEYBOARD INPUT: \nWhen prompted, type in the roll (-45 to +45) and pitch (-45 to +10) angles you'd like to send to the motors. You'll be asked to reenter the angles if they are out of bounds. You can return to the main menu at any time by entering 'q'.")
     print("\nMOUSE INPUT: \nWhen prompted, type in how long you'd like to send angle data to the motors via mouse. The center of the screen sends angle data of (0 roll,0 pitch). Move the mouse up and down to move between a pitch value of -45 and +10 degrees. Move the mouse left and right to move between a roll value of -45 and 45 degreesYou can return to the main menu at any time by entering 'q'.")
     print("Note: The mouse coordinates are eliptically bound. If the mouse moves outside of these bounds, the ray-traced point on the elliptical boundary will be used as the current roll/pitch value.")
     print("\nMOUSE TO FILE: \nWhen prompted, type in how long you'd like to record data for. Data is output to a time stamped txt file in the working directory.")
+    print("\nREAD FROM FILE: \nWhen prompted, type in the name of the file you'd like to read from (leave off the .txt file extension). Data is written to serial at sample rate.")
     print("\nCUSTOM SCREEN RESOLUTION: By default the mouse input is designed to work with 1920x1080p resolution monitors. The resolution can be changed in the code at lines 11 and 12 to any resolution.")
     print("\nDEBUG MODE: Debug mode is used to test the script without having working serial output. Toggle mode by changing the value of the the constant DEBUG_ to True or False on line 8.")
     print("\nCURRENT FILE: The latest stable python script and README documentation can be found at https://github.com/alwayzup/mctTest")
@@ -289,6 +331,7 @@ def input_to_method(inputType):
         'k': keyboard_input,
         'm': mouse_input,
         'f': mouse_to_file,
+        'r': read_from_file,
         'help': help_,
         'q': quit_
     }
@@ -299,7 +342,7 @@ def input_to_method(inputType):
 def main_menu():
     while (True):
         print('Awaiting input:')
-        print("Please type 'k' for keyboard input, 'm' for mouse input, 'f' for mouse to file, 'help' for help, or 'q' to quit.")
+        print("Please type 'k' for keyboard input, 'm' for mouse input, 'f' for mouse to file, 'r' to read from file, 'help' for help, or 'q' to quit.")
         input_type = ''
         input_type = input()
         input_to_method(input_type)
