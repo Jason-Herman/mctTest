@@ -24,8 +24,8 @@ def invalid_input():
     return
 
 def float_to_out(x,y):
-    x_out = str(int(x*256))
-    y_out = str(int(y*256))
+    x_out = str(int(x*800))
+    y_out = str(int(y*555.55))
 
     return [x_out,y_out]
 
