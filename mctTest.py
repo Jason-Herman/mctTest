@@ -5,7 +5,7 @@ import serial
 import sys
 
 #Debug Mode - No serial output
-DEBUG_ = False
+DEBUG_ = True
 
 #Set monitor resolution here:
 x_r = 1920 # set horizontal resolution in px
@@ -127,30 +127,43 @@ def mouse_to_file():
                     
                 #Check if coordinate is within supplied bounds - https://math.stackexchange.com/questions/76457/check-if-a-point-is-within-an-ellipse
                 #If out of bounds use the ray intersection - https://math.stackexchange.com/questions/22064/calculating-a-point-that-lies-on-an-ellipse-given-an-angle
-                print((x**2/(45**2)+y**2/(10**2)))
-                print((x**2/(45**2)+y**2/(45**2)))
+                #print((x**2/(45**2)+y**2/(10**2)))
+                #print((x**2/(45**2)+y**2/(45**2)))
                 if (y>=0): #Above
                     a = 45
                     b = 10
-                    if ((x**2/(a**2)+y**2/(b**2)) >= 1):
-                        y_temp = a*b/math.sqrt(a**2 + b**2 / (y/x)**2)
-                        if (x>0): #Positive
-                            x_temp = a*b/math.sqrt(b**2 + a**2 * (y/x)**2)
-                        else:
-                            x_temp = -a*b/math.sqrt(b**2 + a**2 * (y/x)**2)
-                        x = x_temp
-                        y = y_temp
+                    try: #Deal with divide by Zero
+                        if ((x**2/(a**2)+y**2/(b**2)) >= 1):
+                            y_temp = a*b/math.sqrt(a**2 + b**2 / (y/x)**2)
+                            if (x>0): #Positive
+                                x_temp = a*b/math.sqrt(b**2 + a**2 * (y/x)**2)
+                            else:
+                                x_temp = -a*b/math.sqrt(b**2 + a**2 * (y/x)**2)
+                            x = x_temp
+                            y = y_temp
+                    except ZeroDivisionError:
+                        if (y>10):
+                            y = 10
+                        elif (y<-45):
+                            y = -45 
+
                 else: #Below           
                     a = 45
                     b = 45
-                    if ((x**2/(a**2)+y**2/(b**2)) >= 1):
-                        y_temp = -a*b/math.sqrt(a**2 + b**2 / (y/x)**2)
-                        if (x>0): #Positive
-                            x_temp = a*b/math.sqrt(b**2 + a**2 * (y/x)**2)
-                        else:
-                            x_temp = -a*b/math.sqrt(b**2 + a**2 * (y/x)**2)
-                        x = x_temp
-                        y = y_temp
+                    try: #Deal with divide by Zero
+                        if ((x**2/(a**2)+y**2/(b**2)) >= 1):
+                            y_temp = -a*b/math.sqrt(a**2 + b**2 / (y/x)**2)
+                            if (x>0): #Positive
+                                x_temp = a*b/math.sqrt(b**2 + a**2 * (y/x)**2)
+                            else:
+                                x_temp = -a*b/math.sqrt(b**2 + a**2 * (y/x)**2)
+                            x = x_temp
+                            y = y_temp
+                    except ZeroDivisionError:
+                        if (y>10):
+                            y = 10
+                        elif (y<-45):
+                            y = -45 
 
                 #Convert coordinates for output
                 x_out,y_out = float_to_out(x,y)
@@ -202,30 +215,43 @@ def mouse_input():
                 
             #Check if coordinate is within supplied bounds - https://math.stackexchange.com/questions/76457/check-if-a-point-is-within-an-ellipse
             #If out of bounds use the ray intersection - https://math.stackexchange.com/questions/22064/calculating-a-point-that-lies-on-an-ellipse-given-an-angle
-            print((x**2/(45**2)+y**2/(10**2)))
-            print((x**2/(45**2)+y**2/(45**2)))
+            #print((x**2/(45**2)+y**2/(10**2)))
+            #print((x**2/(45**2)+y**2/(45**2)))
             if (y>=0): #Above
                 a = 45
                 b = 10
-                if ((x**2/(a**2)+y**2/(b**2)) >= 1):
-                    y_temp = a*b/math.sqrt(a**2 + b**2 / (y/x)**2)
-                    if (x>0): #Positive
-                        x_temp = a*b/math.sqrt(b**2 + a**2 * (y/x)**2)
-                    else:
-                        x_temp = -a*b/math.sqrt(b**2 + a**2 * (y/x)**2)
-                    x = x_temp
-                    y = y_temp
+                try: #Deal with divide by Zero
+                    if ((x**2/(a**2)+y**2/(b**2)) >= 1):
+                        y_temp = a*b/math.sqrt(a**2 + b**2 / (y/x)**2)
+                        if (x>0): #Positive
+                            x_temp = a*b/math.sqrt(b**2 + a**2 * (y/x)**2)
+                        else:
+                            x_temp = -a*b/math.sqrt(b**2 + a**2 * (y/x)**2)
+                        x = x_temp
+                        y = y_temp
+                except ZeroDivisionError:
+                    if (y>10):
+                        y = 10
+                    elif (y<-45):
+                        y = -45 
+
             else: #Below           
                 a = 45
                 b = 45
-                if ((x**2/(a**2)+y**2/(b**2)) >= 1):
-                    y_temp = -a*b/math.sqrt(a**2 + b**2 / (y/x)**2)
-                    if (x>0): #Positive
-                        x_temp = a*b/math.sqrt(b**2 + a**2 * (y/x)**2)
-                    else:
-                        x_temp = -a*b/math.sqrt(b**2 + a**2 * (y/x)**2)
-                    x = x_temp
-                    y = y_temp
+                try: #Deal with divide by Zero
+                    if ((x**2/(a**2)+y**2/(b**2)) >= 1):
+                        y_temp = -a*b/math.sqrt(a**2 + b**2 / (y/x)**2)
+                        if (x>0): #Positive
+                            x_temp = a*b/math.sqrt(b**2 + a**2 * (y/x)**2)
+                        else:
+                            x_temp = -a*b/math.sqrt(b**2 + a**2 * (y/x)**2)
+                        x = x_temp
+                        y = y_temp
+                except ZeroDivisionError:
+                    if (y>10):
+                        y = 10
+                    elif (y<-45):
+                        y = -45 
 
             #Convert coordinates for output
             x_out,y_out = float_to_out(x,y)
@@ -278,7 +304,6 @@ def main_menu():
         input_type = input()
         input_to_method(input_type)
 
-#TODO: reset motor positions to 0,0
 main_menu()
 
 
