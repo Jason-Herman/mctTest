@@ -5,11 +5,17 @@ import serial
 import sys
 
 #Debug Mode - No serial output
-DEBUG_ = False
+DEBUG_ = True
 
 #Set monitor resolution here:
 x_r = 1920 # set horizontal resolution in px
 y_b = 1080 # set vertical resolution in px
+
+#Set range
+range_left = -45
+range_right = 45
+range_top = 10
+range_bottom = -45
 
 #Set sample time in seconds here:
 sample_time = .1
@@ -27,7 +33,7 @@ def invalid_input():
     return
 
 def float_to_out(x,y):
-    x_out = str(int(x*800))
+    x_out = str(int(x*800)) #Question: Should the scale factors change with the updated ranges?
     y_out = str(int(y*555.55))
 
     return [x_out,y_out]
@@ -43,11 +49,15 @@ def write_data(x_out,y_out):
         SER.write(str.encode(y_print))
 
 def keyboard_input():
+    global range_left
+    global range_right
+    global range_top
+    global range_bottom
     while(True):
         valid_input_flag = False
         while(not valid_input_flag):    
             print("Set Roll:")
-            print("Enter roll angle from -45 to +45: ('q' to quit to main menu)")
+            print("Enter roll angle from " + str(range_left) + " to " + str(range_right) +": ('q' to quit to main menu)")
             x = 0
             x_input = input()
             x = x_input
@@ -57,7 +67,7 @@ def keyboard_input():
 
             try:
                 x = float(x)
-                if (x < -45 or x > 45):
+                if (x < range_left or x > range_right):
                     print("Invalid angle.")
                 else:
                     valid_input_flag = True
@@ -67,7 +77,7 @@ def keyboard_input():
         valid_input_flag = False
         while(not valid_input_flag):    
             print("Set Pitch:")
-            print("Enter pitch angle from -45 to +10: ('q' to quit to main menu)")
+            print("Enter pitch angle from " + str(range_bottom) + " to " + str(range_top) +": ('q' to quit to main menu)")
             y = 0
             y_input = input()
             y = y_input
@@ -77,7 +87,7 @@ def keyboard_input():
 
             try:
                 y = float(y)
-                if (y < -45 or y > 10):
+                if (y < range_bottom or y > range_top):
                     print("Invalid angle.")
                 else:
                     valid_input_flag = True
@@ -92,9 +102,12 @@ def keyboard_input():
         write_data(x_out,y_out)
 
 def mouse_to_file():
-
+    global range_left
+    global range_right
+    global range_top
+    global range_bottom
     while (True):
-        print("Mouse input writen to file: \n Move mouse up and down to set pitch angle from -45 to +10 degrees. Move mouse left and right to set roll angle from -45 to +45 degrees.")
+        print("Mouse input writen to file: \n Move mouse up and down to set pitch angle from " + str(range_bottom) + " to " + str(range_top) + "degrees. Move mouse left and right to set roll angle from " + str(range_bottom) + " to " + str(range_top) + " degrees.")
         print("Serial output data will be written to a time stamped file in working directory.")
         print("Enter runtime in seconds for mouse input writing: ('q' to quit to main menu)")
         run_time_input = 0
@@ -125,16 +138,14 @@ def mouse_to_file():
         while (i < run_time/sample_time):
             x, y = win32api.GetCursorPos()
             #Scale 
-            x = (x*(55/y_span)) - (x_span*(55/y_span)/2)
-            y = 10 - (y*(55/y_span))
+            x = (x*((range_top-range_bottom)/y_span)) - (x_span*((range_top-range_bottom)/y_span)/2)
+            y = range_top - (y*((range_top-range_bottom)/y_span))
                 
             #Check if coordinate is within supplied bounds - https://math.stackexchange.com/questions/76457/check-if-a-point-is-within-an-ellipse
             #If out of bounds use the ray intersection - https://math.stackexchange.com/questions/22064/calculating-a-point-that-lies-on-an-ellipse-given-an-angle
-            #print((x**2/(45**2)+y**2/(10**2)))
-            #print((x**2/(45**2)+y**2/(45**2)))
             if (y>=0): #Above
-                a = 45
-                b = 10
+                a = range_right
+                b = range_top
                 try: #Deal with divide by Zero
                     if ((x**2/(a**2)+y**2/(b**2)) >= 1):
                         y_temp = a*b/math.sqrt(a**2 + b**2 / (y/x)**2)
@@ -145,14 +156,14 @@ def mouse_to_file():
                         x = x_temp
                         y = y_temp
                 except ZeroDivisionError:
-                    if (y>10):
-                        y = 10
-                    elif (y<-45):
-                        y = -45 
+                    if (y>range_top):
+                        y = range_top
+                    elif (y<range_bottom):
+                        y = range_bottom 
 
             else: #Below           
-                a = 45
-                b = 45
+                a = range_right
+                b = abs(range_bottom)
                 try: #Deal with divide by Zero
                     if ((x**2/(a**2)+y**2/(b**2)) >= 1):
                         y_temp = -a*b/math.sqrt(a**2 + b**2 / (y/x)**2)
@@ -163,10 +174,10 @@ def mouse_to_file():
                         x = x_temp
                         y = y_temp
                 except ZeroDivisionError:
-                    if (y>10):
-                        y = 10
-                    elif (y<-45):
-                        y = -45 
+                    if (y>range_top):
+                        y = range_top
+                    elif (y<range_bottom):
+                        y = range_bottom 
 
             #Convert coordinates for output
             x_out,y_out = float_to_out(x,y)
@@ -189,8 +200,13 @@ def mouse_to_file():
         f.close()
 
 def mouse_input():
+    global range_left
+    global range_right
+    global range_top
+    global range_bottom
+
     while (True):
-        print("Mouse Input Testing: \n Move mouse up and down to set pitch angle from -45 to +10 degrees. Move mouse left and right to set roll angle from -45 to +45 degrees.")
+        print("Mouse Input Testing: \n Move mouse up and down to set pitch angle from " + str(range_bottom) + " to " + str(range_top) + "degrees. Move mouse left and right to set roll angle from " + str(range_bottom) + " to " + str(range_top) + " degrees.")
         print("Enter runtime in seconds for mouse input testing: ('q' to quit to main menu)")
         run_time_input = 0
         run_time_input = input()
@@ -216,16 +232,14 @@ def mouse_input():
         while (i < run_time/sample_time):
             x, y = win32api.GetCursorPos()
             #Scale 
-            x = (x*(55/y_span)) - (x_span*(55/y_span)/2)
-            y = 10 - (y*(55/y_span))
+            x = (x*((range_top-range_bottom)/y_span)) - (x_span*((range_top-range_bottom)/y_span)/2)
+            y = range_top - (y*((range_top-range_bottom)/y_span))
                 
             #Check if coordinate is within supplied bounds - https://math.stackexchange.com/questions/76457/check-if-a-point-is-within-an-ellipse
             #If out of bounds use the ray intersection - https://math.stackexchange.com/questions/22064/calculating-a-point-that-lies-on-an-ellipse-given-an-angle
-            #print((x**2/(45**2)+y**2/(10**2)))
-            #print((x**2/(45**2)+y**2/(45**2)))
             if (y>=0): #Above
-                a = 45
-                b = 10
+                a = range_right
+                b = range_top
                 try: #Deal with divide by Zero
                     if ((x**2/(a**2)+y**2/(b**2)) >= 1):
                         y_temp = a*b/math.sqrt(a**2 + b**2 / (y/x)**2)
@@ -236,14 +250,14 @@ def mouse_input():
                         x = x_temp
                         y = y_temp
                 except ZeroDivisionError:
-                    if (y>10):
-                        y = 10
-                    elif (y<-45):
-                        y = -45 
+                    if (y>range_top):
+                        y = range_top
+                    elif (y<range_bottom):
+                        y = range_bottom 
 
             else: #Below           
-                a = 45
-                b = 45
+                a = range_right
+                b = abs(range_bottom)
                 try: #Deal with divide by Zero
                     if ((x**2/(a**2)+y**2/(b**2)) >= 1):
                         y_temp = -a*b/math.sqrt(a**2 + b**2 / (y/x)**2)
@@ -254,10 +268,10 @@ def mouse_input():
                         x = x_temp
                         y = y_temp
                 except ZeroDivisionError:
-                    if (y>10):
-                        y = 10
-                    elif (y<-45):
-                        y = -45 
+                    if (y>range_top):
+                        y = range_top
+                    elif (y<range_bottom):
+                        y = range_bottom
 
             #Convert coordinates for output
             x_out,y_out = float_to_out(x,y)
@@ -313,7 +327,7 @@ def help_():
     print("\nType and enter 'f' to write mouse angle data output to file.")
     print("\nType and enter 'r' to read mouse angle data from file and output to serial.")    
     print("\nType and enter 'q' to exit the program.")
-    print("\nKEYBOARD INPUT: \nWhen prompted, type in the roll (-45 to +45) and pitch (-45 to +10) angles you'd like to send to the motors. You'll be asked to reenter the angles if they are out of bounds. You can return to the main menu at any time by entering 'q'.")
+    print("\nKEYBOARD INPUT: \nWhen prompted, type in the roll (e.g. -45 to +45) and pitch (e.g. -45 to +10) angles you'd like to send to the motors. You'll be asked to reenter the angles if they are out of bounds. You can return to the main menu at any time by entering 'q'.")
     print("\nMOUSE INPUT: \nWhen prompted, type in how long you'd like to send angle data to the motors via mouse. The center of the screen sends angle data of (0 roll,0 pitch). Move the mouse up and down to move between a pitch value of -45 and +10 degrees. Move the mouse left and right to move between a roll value of -45 and 45 degreesYou can return to the main menu at any time by entering 'q'.")
     print("Note: The mouse coordinates are eliptically bound. If the mouse moves outside of these bounds, the ray-traced point on the elliptical boundary will be used as the current roll/pitch value.")
     print("\nMOUSE TO FILE: \nWhen prompted, type in how long you'd like to record data for. Data is output to a time stamped txt file in the working directory.")
