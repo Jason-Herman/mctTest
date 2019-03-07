@@ -5,7 +5,7 @@ import serial
 import sys
 
 #Debug Mode - No serial output
-DEBUG_ = True
+DEBUG_ = False
 
 #Set monitor resolution here:
 x_r = 1920 # set horizontal resolution in px
