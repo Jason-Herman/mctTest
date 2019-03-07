@@ -22,11 +22,23 @@ sample_time = .1
 
 print('Initializing mctTest script...')
 if (not DEBUG_):
-    time.sleep(2) #Wait 2 seconds to ensure serial output works properly
-    com_port = 'com11' #Need to update port (e.g. 'com4' arduino)
-    SER = serial.Serial(com_port,9600)
-    #Prime motor
-    SER.write(str.encode('RUN\r')) 
+    connection_flag = False
+    try_count = 0
+    while(not connection_flag and try_count < 5):
+        try:
+            try_count += 1
+            time.sleep(2) #Wait 2 seconds to ensure serial output works properly
+            com_port = 'com11' #Need to update port (e.g. 'com4' arduino)
+            print("Attempting connection to " + str(com_port))
+            SER = serial.Serial(com_port,9600)
+            #Prime motor
+            SER.write(str.encode('RUN\r')) 
+            connection_flag = True
+        except:
+            print("Connection failed.")
+    if (connection_flag == False):
+        sys.exit("Closing mctTest script \n Could not connect")
+        
 
 def invalid_input():
     print("Invalid Input.")
