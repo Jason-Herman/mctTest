@@ -94,97 +94,99 @@ def keyboard_input():
 def mouse_to_file():
 
     while (True):
-            print("Mouse input writen to file: \n Move mouse up and down to set pitch angle from -45 to +10 degrees. Move mouse left and right to set roll angle from -45 to +45 degrees.")
-            print("Serial output data will be written to a time stamped file in working directory.")
-            print("Enter runtime in seconds for mouse input writing: ('q' to quit to main menu)")
-            run_time_input = 0
-            run_time_input = input()
-            run_time = run_time_input # Set program run time in seconds
+        print("Mouse input writen to file: \n Move mouse up and down to set pitch angle from -45 to +10 degrees. Move mouse left and right to set roll angle from -45 to +45 degrees.")
+        print("Serial output data will be written to a time stamped file in working directory.")
+        print("Enter runtime in seconds for mouse input writing: ('q' to quit to main menu)")
+        run_time_input = 0
+        run_time_input = input()
+        run_time = run_time_input # Set program run time in seconds
 
-            if (run_time == 'q'): #Quit on user input
-                return 
+        if (run_time == 'q'): #Quit on user input
+            return 
 
-            run_time = float(run_time)
+        run_time = float(run_time)
 
-            global sample_time # time in seconds between samples
+        global sample_time # time in seconds between samples
+        
+        #Get actual resolution reading from monitor manually (currently: 1080p)
+        x_l = 0
+        global x_r
+        y_t = 0
+        global y_b
+        x_span = x_r - x_l
+        y_span = y_b - y_t
+
+        #Create new text file with timestamp
+        fileName =  str(time.strftime("%Y%m%d-%H%M%S")) + "_Serial_Data"
+        f = open(fileName, "x")
+
+        i = 0 # Counter for running time
+
+        while (i < run_time/sample_time):
+            x, y = win32api.GetCursorPos()
+            #Scale 
+            x = (x*(55/y_span)) - (x_span*(55/y_span)/2)
+            y = 10 - (y*(55/y_span))
+                
+            #Check if coordinate is within supplied bounds - https://math.stackexchange.com/questions/76457/check-if-a-point-is-within-an-ellipse
+            #If out of bounds use the ray intersection - https://math.stackexchange.com/questions/22064/calculating-a-point-that-lies-on-an-ellipse-given-an-angle
+            #print((x**2/(45**2)+y**2/(10**2)))
+            #print((x**2/(45**2)+y**2/(45**2)))
+            if (y>=0): #Above
+                a = 45
+                b = 10
+                try: #Deal with divide by Zero
+                    if ((x**2/(a**2)+y**2/(b**2)) >= 1):
+                        y_temp = a*b/math.sqrt(a**2 + b**2 / (y/x)**2)
+                        if (x>0): #Positive
+                            x_temp = a*b/math.sqrt(b**2 + a**2 * (y/x)**2)
+                        else:
+                            x_temp = -a*b/math.sqrt(b**2 + a**2 * (y/x)**2)
+                        x = x_temp
+                        y = y_temp
+                except ZeroDivisionError:
+                    if (y>10):
+                        y = 10
+                    elif (y<-45):
+                        y = -45 
+
+            else: #Below           
+                a = 45
+                b = 45
+                try: #Deal with divide by Zero
+                    if ((x**2/(a**2)+y**2/(b**2)) >= 1):
+                        y_temp = -a*b/math.sqrt(a**2 + b**2 / (y/x)**2)
+                        if (x>0): #Positive
+                            x_temp = a*b/math.sqrt(b**2 + a**2 * (y/x)**2)
+                        else:
+                            x_temp = -a*b/math.sqrt(b**2 + a**2 * (y/x)**2)
+                        x = x_temp
+                        y = y_temp
+                except ZeroDivisionError:
+                    if (y>10):
+                        y = 10
+                    elif (y<-45):
+                        y = -45 
+
+            #Convert coordinates for output
+            x_out,y_out = float_to_out(x,y)
+            print('Raw Location: ' + str(x) + ' ' + str(y))
+
+            #Write data out to console
+            x_print = "r=" + str(x_out) + " "
+            y_print = "p=" + str(y_out) + " \n"
+            print("Serial Output: " + str(x_print) + str(y_print))
+            #Write data to text file
+            f.write(str(x_print))
+            f.write(str(y_print))
+
+            #Write data out to console and serial
+            write_data(x_out,y_out)
             
-            #Get actual resolution reading from monitor manually (currently: 1080p)
-            x_l = 0
-            global x_r
-            y_t = 0
-            global y_b
-            x_span = x_r - x_l
-            y_span = y_b - y_t
-
-            #Create new text file with timestamp
-            fileName =  str(time.strftime("%Y%m%d-%H%M%S")) + "_Serial_Data"
-            f = open(fileName, "x")
-
-            i = 0 # Counter for running time
-
-            while (i < run_time/sample_time):
-                x, y = win32api.GetCursorPos()
-                #Scale 
-                x = (x*(55/y_span)) - (x_span*(55/y_span)/2)
-                y = 10 - (y*(55/y_span))
-                    
-                #Check if coordinate is within supplied bounds - https://math.stackexchange.com/questions/76457/check-if-a-point-is-within-an-ellipse
-                #If out of bounds use the ray intersection - https://math.stackexchange.com/questions/22064/calculating-a-point-that-lies-on-an-ellipse-given-an-angle
-                #print((x**2/(45**2)+y**2/(10**2)))
-                #print((x**2/(45**2)+y**2/(45**2)))
-                if (y>=0): #Above
-                    a = 45
-                    b = 10
-                    try: #Deal with divide by Zero
-                        if ((x**2/(a**2)+y**2/(b**2)) >= 1):
-                            y_temp = a*b/math.sqrt(a**2 + b**2 / (y/x)**2)
-                            if (x>0): #Positive
-                                x_temp = a*b/math.sqrt(b**2 + a**2 * (y/x)**2)
-                            else:
-                                x_temp = -a*b/math.sqrt(b**2 + a**2 * (y/x)**2)
-                            x = x_temp
-                            y = y_temp
-                    except ZeroDivisionError:
-                        if (y>10):
-                            y = 10
-                        elif (y<-45):
-                            y = -45 
-
-                else: #Below           
-                    a = 45
-                    b = 45
-                    try: #Deal with divide by Zero
-                        if ((x**2/(a**2)+y**2/(b**2)) >= 1):
-                            y_temp = -a*b/math.sqrt(a**2 + b**2 / (y/x)**2)
-                            if (x>0): #Positive
-                                x_temp = a*b/math.sqrt(b**2 + a**2 * (y/x)**2)
-                            else:
-                                x_temp = -a*b/math.sqrt(b**2 + a**2 * (y/x)**2)
-                            x = x_temp
-                            y = y_temp
-                    except ZeroDivisionError:
-                        if (y>10):
-                            y = 10
-                        elif (y<-45):
-                            y = -45 
-
-                #Convert coordinates for output
-                x_out,y_out = float_to_out(x,y)
-                print('Raw Location: ' + str(x) + ' ' + str(y))
-
-                #Write data out to console
-                x_print = "r=" + str(x_out) + " "
-                y_print = "p=" + str(y_out) + " \n"
-                print("Serial Output: " + str(x_print) + str(y_print))
-                #Write data to text file
-                f.write(str(x_print))
-                f.write(str(y_print))
-                
-                
-                time.sleep(sample_time) 
-                i += 1
-            #close text file
-            f.close()
+            time.sleep(sample_time) 
+            i += 1
+        #close text file
+        f.close()
 
 def mouse_input():
     while (True):
