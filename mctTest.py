@@ -7,11 +7,11 @@ import sys
 #Debug Mode - No serial output
 DEBUG_ = False
 
-#Set monitor resolution here:
+#Set default monitor resolution here:
 x_r = 1920 # set horizontal resolution in px
 y_b = 1080 # set vertical resolution in px
 
-#Set range
+#Set default range
 range_left = -45
 range_right = 45
 range_top = 10
@@ -22,23 +22,28 @@ sample_time = .1
 
 print('Initializing mctTest script...')
 if (not DEBUG_):
+    time.sleep(2) #Wait 2 seconds to ensure serial output works properly
     connection_flag = False
-    try_count = 0
-    while(not connection_flag and try_count < 5):
+    while(not connection_flag):
         try:
-            try_count += 1
-            time.sleep(2) #Wait 2 seconds to ensure serial output works properly
-            com_port = 'com11' #Need to update port (e.g. 'com4' arduino)
+            print("Enter comport (e.g. com11): ('q' to continue without serial output)")
+            com_port = 'com11'
+            com_port_input = input()
+            com_port = str(com_port_input)
+
+            if (com_port == 'q'): #Quit on user input
+                DEBUG_ = True
+                connection_flag = True
+                print("Continuing without serial output.")
             print("Attempting connection to " + str(com_port))
             SER = serial.Serial(com_port,9600)
             #Prime motor
             SER.write(str.encode('RUN\r')) 
             connection_flag = True
+            print("Successfully connected to " + str(com_port))
         except:
-            print("Connection failed.")
-    if (connection_flag == False):
-        sys.exit("Closing mctTest script \n Could not connect")
-        
+            print("Connection failed.") 
+   
 
 def invalid_input():
     print("Invalid Input.")
