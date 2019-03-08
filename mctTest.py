@@ -18,7 +18,7 @@ range_top = 10
 range_bottom = -45
 
 #Set sample time in seconds here:
-sample_time = .1
+sample_time = .2
 
 print('Initializing mctTest script...')
 if (not DEBUG_):
@@ -44,7 +44,6 @@ if (not DEBUG_):
         except:
             print("Connection failed.") 
    
-
 def invalid_input():
     print("Invalid Input.")
     return
@@ -359,12 +358,106 @@ def help_():
 def quit_():
     sys.exit("Closing mctTest script \n Complete")
 
+def customize_():
+    while (True):
+        print("Enter 'r' to set angle ranges, 's' to set sample time, or 'q' to quit.")
+        option = ''
+        user_input = input()
+        option = str(user_input)
+
+        if (option == 'q'):
+            return
+        elif (option == 'r'):
+            global range_left
+            global range_right
+            global range_top
+            global range_bottom
+            valid_input_flag = False
+            while (not valid_input_flag):
+                range = 0
+                print("Enter minimum roll (default " + str(range_left) + "): ('q' to quit)")
+                range = input()
+                try:
+                    if (str(range) == 'q'):
+                        return
+                    range_left = float(range)
+                    valid_input_flag = True
+                except ValueError:
+                    print("Input must be numerical.")
+
+            valid_input_flag = False
+            while (not valid_input_flag):
+                range = 0
+                print("Enter maximum roll (default " + str(range_right) + "): ('q' to quit)")
+                range = input()
+                try:
+                    if (str(range) == 'q'):
+                        return
+                    range_right = float(range)
+                    if (range_right > range_left):
+                        valid_input_flag = True
+                    else:
+                        print("Maximum roll must exceed minimum roll.")
+                except ValueError:
+                    print("Input must be numerical.")
+
+            valid_input_flag = False
+            while (not valid_input_flag):
+                range = 0
+                print("Enter minimum pitch (default " + str(range_bottom) + "): ('q' to quit)")
+                range = input()
+                try:
+                    if (str(range) == 'q'):
+                        return
+                    range_bottom = float(range)
+                    valid_input_flag = True
+                except ValueError:
+                    print("Input must be numerical.")
+
+            valid_input_flag = False
+            while (not valid_input_flag):
+                range = 0
+                print("Enter maximum pitch (default " + str(range_top) + "): ('q' to quit)")
+                range = input()
+                try:
+                    if (str(range) == 'q'):
+                        return
+                    range_top = float(range)
+                    if (range_top > range_bottom):
+                        valid_input_flag = True
+                        return
+                    else:
+                        print("Maximum pitch must exceed minimum pitch.")
+                except ValueError:
+                    print("Input must be numerical.")
+
+        elif (option == 's'):
+            global sample_time
+            valid_input_flag = False
+            while (not valid_input_flag):
+                print("Enter sample time (default " + str(sample_time) + " seconds): ('q' to quit)")
+                sample = input()
+                try:
+                    if (str(sample) == 'q'):
+                        return
+                    sample_time = float(sample)
+                    if (sample_time > 0):
+                        valid_input_flag = True
+                        return
+                    else:
+                        print("Input must be positive.")
+                except ValueError:
+                    print("Input must be numerical.")
+
+        
+
 def input_to_method(inputType):
     switcher = {
         'k': keyboard_input,
         'm': mouse_input,
         'f': mouse_to_file,
         'r': read_from_file,
+        'c': customize_,
         'help': help_,
         'q': quit_
     }
@@ -375,7 +468,7 @@ def input_to_method(inputType):
 def main_menu():
     while (True):
         print('Awaiting input:')
-        print("Please type 'k' for keyboard input, 'm' for mouse input, 'f' for mouse to file, 'r' to read from file, 'help' for help, or 'q' to quit.")
+        print("Please type 'k' for keyboard input, 'm' for mouse input, 'f' for mouse to file, 'r' to read from file, 'c' to customize, 'help' for help, or 'q' to quit.")
         input_type = ''
         input_type = input()
         input_to_method(input_type)
