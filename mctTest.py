@@ -12,10 +12,10 @@ x_r = 1920 # set horizontal resolution in px
 y_b = 1080 # set vertical resolution in px
 
 #Set default range
-range_left = -45
-range_right = 45
+range_left = -40
+range_right = 40
 range_top = 10
-range_bottom = -45
+range_bottom = -40
 
 #Set sample time in seconds here:
 sample_time = .2
@@ -447,9 +447,7 @@ def customize_():
                     else:
                         print("Input must be positive.")
                 except ValueError:
-                    print("Input must be numerical.")
-
-        
+                    print("Input must be numerical.")    
 
 def input_to_method(inputType):
     switcher = {
